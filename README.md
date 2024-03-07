@@ -1,4 +1,3 @@
-=======
 # Fantasy Football Backend
 
 - This backend is hosted on a cloud server at 140.238.195.229:12345.
