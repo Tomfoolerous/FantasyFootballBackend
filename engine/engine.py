@@ -12,3 +12,9 @@ class Engine:
             user=os.getenv("DB_USER"),
             database=os.getenv("DB_NAME")
         )
+        self.conn.autocommit = True
+        self.cursor = self.conn.cursor()
+
+    def _run_sql(self, sql, values):
+        self.cursor.execute(sql, values)
+        return self.cursor.fetchall()
