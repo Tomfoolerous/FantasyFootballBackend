@@ -1,6 +1,7 @@
 import mysql.connector
 import dotenv
 import os
+import requests
 
 
 class Engine:
@@ -14,6 +15,10 @@ class Engine:
         )
         self.conn.autocommit = True
         self.cursor = self.conn.cursor()
+        self._initialise_db()
+        
+        self.session = requests.Session()
+        self.session.headers.update({"User-Agent": f"FantasyFootballBackend - Contact at {os.getenv('EMAIL')}"})
 
     def _run_sql(self, sql, values) -> tuple:
         self.cursor.execute(sql, values)
