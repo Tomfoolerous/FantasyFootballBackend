@@ -15,7 +15,7 @@ def get_games(year):
   print(f'status: {response.status_code}')
   return response.json()
 
-def sort_games(year):
+def return_game_data(year):
   return_data = []
   games = get_games(year)['games']
 
@@ -38,10 +38,4 @@ def sort_games(year):
   
   return return_data
 
-
-def game_data_to_json(year):
-  path = f'data/{year}_games.json'  # relative to the root of the project
-  with open(path, 'w') as f:        # automatically makes a new file if it doesnt exist
-    json.dump(sort_games(year), f, indent=2)
-
-game_data_to_json(2021)
+print(json.dumps(return_game_data(2021), indent=2))
