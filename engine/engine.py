@@ -24,9 +24,12 @@ class Engine:
 
         self.session = requests.Session()
         self.session.headers.update(
+            
             {"User-Agent": f"FantasyFootballBackend - Contact at {os.getenv('EMAIL')}"})
 
         self._fetch_model_data()
+
+        self.fetch_model_data()
 
     def _run_sql(self, sql, values) -> tuple:
         self.cursor.execute(sql, values)
