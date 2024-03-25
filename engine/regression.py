@@ -1,1 +1,2 @@
-import pytorch
+import torch
+from torch import nn
