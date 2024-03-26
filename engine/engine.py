@@ -58,7 +58,7 @@ class Engine:
 
         return np.vectorize(convert_value)(data)
 
-    def fetch_model_data(self) -> tuple:
+    def _fetch_model_data(self) -> tuple:
         years = range(2020, 2025)
         rounds = range(1, 24)
         rounds_2020 = range(1, 18)

@@ -5,8 +5,17 @@ from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
 
-class PredictedPlayerRatings:
+class PredictedPlayerRatings(nn.Module):
     def __init__(self):
+        super.__init__()
+        self.flatten = nn.Flatten()
+        self.linear_stack = nn.Sequential(
+            nn.Linear(33, 128)
+            nn.ReLU()
+            nn.Linear(128, 128)
+            nn.Relu()
+            nn.Linear(128, 1)
+        )
         self.dataset = None
 
     def load_data(self, data: np.array):
@@ -33,3 +42,8 @@ class PredictedPlayerRatings:
 
         self.dataset = TensorDataset(torch.tensor(
             train_stats, dtype=torch.float32), torch.tensor(train_labels, dtype=torch.float32))
+
+    def forward_propagation(self, x):
+        x = nn.Flatten(x)
+        logits = self.linear_stack(x)
+        return logits
