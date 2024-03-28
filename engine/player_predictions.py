@@ -10,11 +10,11 @@ class PredictedPlayerRatings(nn.Module):
         super.__init__()
         self.flatten = nn.Flatten()
         self.linear_stack = nn.Sequential(
-            nn.Linear(33, 128)
-            nn.ReLU()
-            nn.Linear(128, 128)
-            nn.Relu()
-            nn.Linear(128, 1)
+            nn.Linear(33, 128),
+            nn.ReLU(),
+            nn.Linear(128, 128),
+            nn.ReLU(),
+            nn.Linear(128, 1),
         )
         self.dataset = None
 
@@ -47,10 +47,11 @@ class PredictedPlayerRatings(nn.Module):
         x = nn.Flatten(x)
         logits = self.linear_stack(x)
         return logits
-    
+
     def train_model(self):
-        train_dataloader = DataLoader(self.dataset, batch_size=64, shuffle=True)
-        loss_fn = nn.CrossEntropyLoss()
+        train_dataloader = DataLoader(
+            self.dataset, batch_size=64, shuffle=True)
+        loss_fn = nn.MSELoss()
         optimizer = torch.optim.SGD(self.parameters(), lr=1e-3)
 
         for epoch in range(10):
@@ -60,5 +61,3 @@ class PredictedPlayerRatings(nn.Module):
                 loss = loss_fn(y_pred, y_batch)
                 loss.backward()
                 optimizer.step()
-
-    def _mean_squared_error(self):
