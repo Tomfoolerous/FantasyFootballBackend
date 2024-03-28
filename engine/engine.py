@@ -3,6 +3,7 @@ import dotenv
 import os
 import requests
 import numpy as np
+import teststats
 
 
 class Engine:
@@ -25,7 +26,7 @@ class Engine:
         self.session.headers.update(
             {"User-Agent": f"FantasyFootballBackend - Contact at {os.getenv('EMAIL')}"})
 
-        self.fetch_model_data()
+        self._fetch_model_data()
 
     def _run_sql(self, sql, values) -> tuple:
         self.cursor.execute(sql, values)
@@ -62,11 +63,18 @@ class Engine:
         years = range(2020, 2025)
         rounds = range(1, 24)
         rounds_2020 = range(1, 18)
-        data = []
+        player_data = []
+        ground_data = []
+        match_data = []
         for year in years:
             for round in rounds_2020 if year == 2020 else rounds:
-                # Fetch data from Squiggle API and AFL Tables, and convert to model data
-                # By the end of this loop, `data` should contain a list of lists, where each inner list is the relevant data for each iteration of the model as specified in player_predictions.py
+                if self.testing:
+                    player_data = teststats.generate_test_stats()
+                    ground_data = teststats.generate_test_grounds()
+                    match_data = teststats.generate_test_matches()
+                    continue
                 pass
-        r_data = self._numerify_list(data)
-        return r_data
+        r_player_data = self._numerify_list(player_data)
+        r_ground_data = self._numerify_list(ground_data)
+        r_match_data = self._numerify_list(match_data)
+        return r_player_data, r_ground_data, r_match_data
