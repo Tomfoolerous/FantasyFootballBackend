@@ -43,7 +43,22 @@ class PredictedPlayerRatings(nn.Module):
         self.dataset = TensorDataset(torch.tensor(
             train_stats, dtype=torch.float32), torch.tensor(train_labels, dtype=torch.float32))
 
-    def forward_propagation(self, x):
+    def _forward_propagation(self, x):
         x = nn.Flatten(x)
         logits = self.linear_stack(x)
         return logits
+    
+    def train_model(self):
+        train_dataloader = DataLoader(self.dataset, batch_size=64, shuffle=True)
+        loss_fn = nn.CrossEntropyLoss()
+        optimizer = torch.optim.SGD(self.parameters(), lr=1e-3)
+
+        for epoch in range(10):
+            for x_batch, y_batch in train_dataloader:
+                optimizer.zero_grad()
+                y_pred = self._forward_propagation(x_batch)
+                loss = loss_fn(y_pred, y_batch)
+                loss.backward()
+                optimizer.step()
+
+    def _mean_squared_error(self):
