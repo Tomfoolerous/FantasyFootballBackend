@@ -155,4 +155,5 @@ def generate_test_matches():
     return matches
 
 
-generate_test_stats()
+if __name__ == "__main__":
+    generate_test_stats()
