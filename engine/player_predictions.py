@@ -18,6 +18,22 @@ class PredictedPlayerRatings(nn.Module):
         )
         self.dataset = None
 
+    def preprocess_data(self, player_data: np.array, ground_data: np.array):
+        data = []
+        for player in player_data:
+            running_career_data = []
+            running_five_match_data = []
+            running_prev_match_data = []
+            for round, index in enumerate(player):
+                if round != 0:
+                    running_career_data.append(index)
+                    running_five_match_data.append(index)
+                    running_prev_match_data.append(index)
+                if round >= 5:
+                    running_five_match_data.pop(0)
+                if round >= 1:
+                    running_prev_match_data.pop(0)
+
     def load_data(self, data: np.array):
         """
         Ideal data provided:
@@ -25,7 +41,6 @@ class PredictedPlayerRatings(nn.Module):
             five_match_data = [five_match_kicks, five_match_handballs, five_match_marks, five_match_tackles, five_match_freekicksfor, five_match_freekicksagainst, five_match_hitouts, five_match_goals, five_match_behinds]
             prev_match_data = [prev_match_kicks, prev_match_handballs, prev_match_marks, prev_match_tackles, prev_match_freekicksfor, prev_match_freekicksagainst, prev_match_hitouts, prev_match_goals, prev_match_behinds]
             ground_data = [ground_id, temperature, weather]
-            match_data = [home_team, away_team, date, time]
         """
 
         def separate_data(data: np.array):

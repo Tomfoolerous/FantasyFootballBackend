@@ -4,6 +4,7 @@ import os
 import requests
 import numpy as np
 import teststats
+import sys
 
 
 class Engine:
@@ -47,34 +48,16 @@ class Engine:
             "CREATE TABLE IF NOT EXISTS grounds (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name TEXT, capacity INT)", ())
         return True
 
-    def _numerify_list(self, data: list) -> np.array:
-        # Converts all the strings into integers for processing.
-        # Byte conversion used to increase performance (operations run at C speed).
-        def convert_value(value: str):
-            if isinstance(value, int):
-                return value
-            b_value = value.encode("utf-8")
-            i_value = int.from_bytes(b_value, "big")
-            return i_value
-
-        return np.vectorize(convert_value)(data)
-
-    def _fetch_model_data(self) -> np.array:
+    def _fetch_model_data(self) -> list:
         years = range(2020, 2025)
         rounds = range(1, 24)
         rounds_2020 = range(1, 18)
         player_data = []
         ground_data = []
         match_data = []
-        for year in years:
-            for round in rounds_2020 if year == 2020 else rounds:
-                if self.testing:
-                    player_data = teststats.generate_test_stats()
-                    ground_data = teststats.generate_test_grounds()
-                    match_data = teststats.generate_test_matches()
-                    continue
-                pass
-        r_player_data = self._numerify_list(player_data)
-        r_ground_data = self._numerify_list(ground_data)
-        r_match_data = self._numerify_list(match_data)
-        return r_player_data, r_ground_data, r_match_data
+        if self.testing:
+            player_data = teststats.generate_test_stats()
+            player_data = [player[1:] for player in player_data]
+            ground_data = teststats.generate_test_grounds()
+        pass
+        return player_data, ground_data, match_data

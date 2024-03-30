@@ -102,9 +102,9 @@ def generate_test_grounds():
                 grounds.append([f"{year}_R{i}", None, None, None])
                 continue
             round_id = f"{year}_R{i}"
-            ground = random.choice(afl_grounds)
+            ground = random.randint(0, 8)
             temperature = random.randint(0, 40)
-            weather = random.choice(weathers)
+            weather = random.randint(0, 6)
             grounds.append([round_id, ground, temperature, weather])
     return grounds
 
@@ -141,7 +141,7 @@ def generate_test_matches():
         for i in range(1, 25):
             if i > round_num[year]:
                 matches.append(
-                    [f"{year}_R{i}", None, None, None, None, None, None, None, None, None, None])
+                    [f"{year}_R{i}", None, None, None, None])
                 continue
             round_id = f"{year}_R{i}"
             home_team = random.choice(teams)
