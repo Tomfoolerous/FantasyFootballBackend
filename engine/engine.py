@@ -4,6 +4,7 @@ import os
 import requests
 import numpy as np
 import teststats
+import player_predictions
 import sys
 
 
@@ -27,8 +28,6 @@ class Engine:
         self.session.headers.update(
             {"User-Agent": f"FantasyFootballBackend - Contact at {os.getenv('EMAIL')}"})
 
-        self._fetch_model_data()
-
     def _run_sql(self, sql, values) -> tuple:
         self.cursor.execute(sql, values)
         return self.cursor.fetchall()
@@ -49,15 +48,23 @@ class Engine:
         return True
 
     def _fetch_model_data(self) -> list:
-        years = range(2020, 2025)
-        rounds = range(1, 24)
-        rounds_2020 = range(1, 18)
         player_data = []
         ground_data = []
-        match_data = []
         if self.testing:
             player_data = teststats.generate_test_stats()
             player_data = [player[1:] for player in player_data]
+            player_data = [[round[1:] for round in player]
+                           for player in player_data]
             ground_data = teststats.generate_test_grounds()
-        pass
-        return player_data, ground_data, match_data
+            ground_data = [ground[1:] for ground in ground_data]
+        return player_data, ground_data
+
+
+if __name__ == "__main__":
+    engine = Engine(testing=True)
+    player_data, ground_data = engine._fetch_model_data()
+    model = player_predictions.PredictedPlayerRatings()
+    model.preprocess_data(player_data, ground_data)
+    model.train_model()
+    model.test_model()
+    sys.exit()
