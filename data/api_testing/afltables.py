@@ -5,7 +5,10 @@ def get_html(url):
   response = requests.get(url)
   return response.text
 
-soup = bs.BeautifulSoup(get_html('https://afltables.com/afl/stats/teams/adelaide/2023_gbg.html'), 'html.parser')
+team = 'adelaide'
+year = '2023'
+
+soup = bs.BeautifulSoup(get_html(f'https://afltables.com/afl/stats/teams/{team}/{year}_gbg.html'), 'html.parser')
 
 
 def season_data(tables):
@@ -50,3 +53,22 @@ tables = soup.find("div", {"class": "simpleTabs"})
 rounds = season_data(tables)
 
 print(f'rounds: {rounds}')
+
+
+def get_player_data(tables):    
+  #returns data as lists of each data point which needs to be decoded into lists of each player
+
+  player_data = []
+  
+  data = tables.find_all("div", {"class": "simpleTabsContent"})
+
+  # you can use data[x] to get the xth table of data
+  for i in data:
+    table_data = i.table.tbody
+    table_key = i.table.thead.tr.th.text
+    print(table_key, '\n')
+    # print(table_data.text)
+  
+  
+
+get_player_data(tables)
