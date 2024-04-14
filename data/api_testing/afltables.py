@@ -44,31 +44,70 @@ def season_data(tables):
     else:
       rounds_list.append(i)
 
-  return rounds_list
+  return rounds_list, bye_rounds
 
 
 
 tables = soup.find("div", {"class": "simpleTabs"})
 
-rounds = season_data(tables)
-
-print(f'rounds: {rounds}')
+rounds, bye_rounds = season_data(tables)
 
 
-def get_player_data(tables):    
+def get_player_data(tables, bye_rounds):    
   #returns data as lists of each data point which needs to be decoded into lists of each player
-
+  final_data = []
   player_data = []
+  temp_player_data = []
   
   data = tables.find_all("div", {"class": "simpleTabsContent"})
 
-  # you can use data[x] to get the xth table of data
+  # you can use data[x] to get the xth table of 
   for i in data:
     table_data = i.table.tbody
     table_key = i.table.thead.tr.th.text
-    print(table_key, '\n')
-    # print(table_data.text)
-  
+
+    for row in table_data.find_all("tr"):
+      round_counter = 0
+      for cell in row.find_all("td")[0:-1]:     # -1 to remove the last cell which is the total
+        
+        if cell.text == '\xa0':
+          temp_player_data.append(None)
+          continue
+        elif cell.text == '-':
+          temp_player_data.append(0)
+          continue
+
+        temp_player_data.append(cell.text)
+      
+      print(temp_player_data, '\n')
+      temp_player_data.clear()
   
 
-get_player_data(tables)
+
+unformatted_data = get_player_data(tables, bye_rounds)
+
+'''
+unformatted data:
+
+unformatted_data = {          #eg. key = DI, name = David Mackay, name = Rory Laird, etc.
+  "key": {
+    "name": [match_id, stat],
+    "name": [match_id, stat],
+    "name": [match_id, stat],
+    ...
+  }
+  key: {
+    "name": [match_id, stat],
+    "name": [match_id, stat],
+    "name": [match_id, stat],
+    ...
+}
+
+format for data:
+
+data = [
+  [[name, position, cost, None, None...], [match_id, stats...], [match_id, stats...], [match_id, stats...]... ], 
+  [[name, position, cost, None, None...], [match_id, stats...], [match_id, stats...], [match_id, stats...]... ], 
+  ... 
+]
+'''
