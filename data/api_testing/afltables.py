@@ -1,5 +1,6 @@
 import bs4 as bs
 import requests
+from pprint import pprint
 
 def get_html(url):
   response = requests.get(url)
@@ -46,30 +47,96 @@ def season_data(tables):
 
   return rounds_list, bye_rounds
 
+def key_to_shorthand(key):
+  if key == 'Disposals':
+    return 'DI'
+  elif key == 'Kicks':
+    return 'KI'
+  elif key == 'Marks':
+    return 'MK'
+  elif key == 'Handballs':
+    return 'HB'
+  elif key == 'Goals':
+    return 'GL'
+  elif key == 'Behinds':
+    return 'BH'
+  elif key == 'Hit Outs':
+    return 'HO'
+  elif key == 'Tackles':
+    return 'TK'
+  elif key == 'Rebounds':
+    return 'RB'
+  elif key == 'Inside 50s':
+    return 'I5'
+  elif key == 'Clearances':
+    return 'CL'
+  elif key == 'Clangers':
+    return 'CG'
+  elif key == 'Frees':
+    return 'FF'
+  elif key == 'Frees Against':
+    return 'FA'
+  elif key == 'Brownlow Votes':
+    return 'BR'
+  elif key == 'Contested Possessions':
+    return 'CP'
+  elif key == 'Uncontested Possessions':
+    return 'UP'
+  elif key == 'Contested Marks':
+    return 'CM'
+  elif key == 'Marks Inside 50':
+    return 'MI'
+  elif key == 'One Percenters':
+    return 'OP'
+  elif key == 'Bounces':
+    return 'BO'
+  elif key == 'Goal Assists':
+    return 'GA'
+  elif key == '% Played':
+    return '%P'
+  else: 
+    print('Key not found')
+    exit()
 
 
-tables = soup.find("div", {"class": "simpleTabs"})
-
-rounds, bye_rounds = season_data(tables)
-
-
-def get_player_data(tables, bye_rounds):    
+def get_player_data(tables, bye_rounds, year, num_rounds):    
   #returns data as lists of each data point which needs to be decoded into lists of each player
-  final_data = []
-  player_data = []
+  final_data = {
+    "2024": {
+      "DI": {}, "KI": {}, "MK": {}, "HB": {}, "GL": {}, "BH": {}, "HO": {}, "TK": {}, "RB": {}, "I5": {}, "CL": {}, "CG": {}, "FF": {}, "FA": {}, "BR": {}, "CP": {}, "UP": {}, "CM": {}, "MI": {}, "OP": {}, "BO": {}, "GA": {}, "%P": {}
+    },
+    "2023": {
+      "DI": {}, "KI": {}, "MK": {}, "HB": {}, "GL": {}, "BH": {}, "HO": {}, "TK": {}, "RB": {}, "I5": {}, "CL": {}, "CG": {}, "FF": {}, "FA": {}, "BR": {}, "CP": {}, "UP": {}, "CM": {}, "MI": {}, "OP": {}, "BO": {}, "GA": {}, "%P": {}
+    },
+    "2022": {
+      "DI": {}, "KI": {}, "MK": {}, "HB": {}, "GL": {}, "BH": {}, "HO": {}, "TK": {}, "RB": {}, "I5": {}, "CL": {}, "CG": {}, "FF": {}, "FA": {}, "BR": {}, "CP": {}, "UP": {}, "CM": {}, "MI": {}, "OP": {}, "BO": {}, "GA": {}, "%P": {}
+    },
+    "2021": {
+      "DI": {}, "KI": {}, "MK": {}, "HB": {}, "GL": {}, "BH": {}, "HO": {}, "TK": {}, "RB": {}, "I5": {}, "CL": {}, "CG": {}, "FF": {}, "FA": {}, "BR": {}, "CP": {}, "UP": {}, "CM": {}, "MI": {}, "OP": {}, "BO": {}, "GA": {}, "%P": {}
+    },
+    "2020": {
+      "DI": {}, "KI": {}, "MK": {}, "HB": {}, "GL": {}, "BH": {}, "HO": {}, "TK": {}, "RB": {}, "I5": {}, "CL": {}, "CG": {}, "FF": {}, "FA": {}, "BR": {}, "CP": {}, "UP": {}, "CM": {}, "MI": {}, "OP": {}, "BO": {}, "GA": {}, "%P": {}
+    }
+}
+
   temp_player_data = []
   
   data = tables.find_all("div", {"class": "simpleTabsContent"})
 
   # you can use data[x] to get the xth table of 
-  for i in data:
+  for i in data[0:-1]:        # -1 to remove the last table which is the subs
     table_data = i.table.tbody
     table_key = i.table.thead.tr.th.text
 
     for row in table_data.find_all("tr"):
       round_counter = 0
       for cell in row.find_all("td")[0:-1]:     # -1 to remove the last cell which is the total
+        round_counter += 1
         
+        if round_counter in bye_rounds:
+          temp_player_data.append(None)
+          round_counter += 1
+
         if cell.text == '\xa0':
           temp_player_data.append(None)
           continue
@@ -79,28 +146,33 @@ def get_player_data(tables, bye_rounds):
 
         temp_player_data.append(cell.text)
       
-      print(temp_player_data, '\n')
-      temp_player_data.clear()
+      # print(f'{table_key}: {temp_player_data} \n\n')
+      final_data[year][key_to_shorthand(table_key)][temp_player_data[0]] = temp_player_data[1:]
+      temp_player_data = []
+  
+  final_data[year]["number_rounds"] = num_rounds
+  # print(final_data['2023'])
   
 
 
-unformatted_data = get_player_data(tables, bye_rounds)
+
+tables = soup.find("div", {"class": "simpleTabs"})
+
+rounds, bye_rounds = season_data(tables)
+
+unformatted_data = get_player_data(tables, bye_rounds, year, num_rounds)
 
 '''
 unformatted data:
 
-unformatted_data = {          #eg. key = DI, name = David Mackay, name = Rory Laird, etc.
+unformatted_data = {          #eg. key = DI, name = David Mackay, year = 2023, round = 1
   "key": {
-    "name": [match_id, stat],
-    "name": [match_id, stat],
-    "name": [match_id, stat],
-    ...
+    "year": {
+      "name": {
+        "round": [data]
+      }
+    }
   }
-  key: {
-    "name": [match_id, stat],
-    "name": [match_id, stat],
-    "name": [match_id, stat],
-    ...
 }
 
 format for data:
