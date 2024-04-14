@@ -1,6 +1,7 @@
 import bs4 as bs
 import requests
 from pprint import pprint
+import json
 
 def get_html(url):
   response = requests.get(url)
@@ -16,7 +17,8 @@ def season_data(tables):
   
   if 'BR' in headings_list:
     headings_list.remove('BR')
-  headings_list.remove('SU')
+  if 'SU' in headings_list:
+    headings_list.remove('SU')
 
 
   data = tables.find_all("div", {"class": "simpleTabsContent"})
@@ -214,8 +216,9 @@ for year in years:
 
   unformatted_data = get_player_data(tables, bye_rounds, year, num_rounds, unformatted_data)
   # pprint(unformatted_data)
-  exit()
 
+with open('generated/unformatted_data.json', 'w') as f:
+  json.dump(unformatted_data, f, indent=2)
 format_data(unformatted_data)
 
 '''
