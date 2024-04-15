@@ -169,46 +169,54 @@ def get_player_data(tables, bye_rounds, year, num_rounds, final_data):
 
 
 def format_data(unformatted_data):
-  formatted_data = []
-  formatted_player_data = []
-  name_element = []
-  match_element = []
+  max_rounds = 24
+  data = []
 
-  for player in unformatted_data["2023"]["DI"]:     
-    #start with disposals as it is the first key then it will link everything else in. Uses 2023 as that has latest list of players
-    
+  player_list = []
+  for i in unformatted_data["2024"]["DI"]:
+    player_list.append(i)
+
+  for player in player_list:
+    player_element = []
+
+    name_element = []
     name_element.append(player)
     for i in range(23):
       name_element.append(None)
-    formatted_player_data.append(name_element)
     
-    round_id_incrementor = 1
-    for year in unformatted_data:
-      round_id = f'{year}_{round_id_incrementor}'
-      for table_key in unformatted_data[year]:
-        match_element.append(round_id)
-        for table_key in unformatted_data[year]:
-          if table_key == 'number_rounds':
+    player_element.append(name_element)
+
+    for year in unformatted_data.keys():
+      round_counter = 1
+
+      while round_counter <= max_rounds:
+        match_element = []
+        match_element.append(f'{year}_{round_counter}')
+
+        for table_key in unformatted_data[year].keys():
+          if table_key == "number_rounds":
             continue
-          
-          # print(data)
-          # print(unformatted_data[year][data])
-          try:
-            match_element.append(unformatted_data[year][table_key][player][round_id_incrementor-1]) 
-          except KeyError as e:
+          if player in unformatted_data[year][table_key]:
+            try:
+              match_element.append(unformatted_data[year][table_key][player][round_counter-1])
+            except IndexError:
+              match_element.append(None)
+          else:
             match_element.append(None)
-            print(f'{year}: {table_key}')
-            
-          # -1 as the round_id_incrementor starts at 1 to match the rounds but the list starts at 0
+
+        player_element.append(match_element)
+        print(player_element)
+        round_counter += 1
         
-        # print(match_element)
-        formatted_player_data.append(match_element)
-        match_element.clear()
-      round_id_incrementor += 1
-      # print(formatted_player_data)
-      # exit()
-    print(formatted_player_data)
-    exit()      
+    data.append(player_element)
+    with open('generated/formatted_data.txt', 'w') as f:
+      f.write(str(data))
+    exit()
+    
+      
+
+
+
 
         
 
