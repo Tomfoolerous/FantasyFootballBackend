@@ -28,12 +28,27 @@ def season_data(tables):
   # find_all("tr") and then the second element [1]
   rounds = data[0].table.thead.find_all("tr")[1].find_all("th")       
 
+
   num_rounds = rounds[-2].text.replace('R', '')
+  decrement = -2
+  while True:
+    if num_rounds.isdigit():
+      break
+    else:
+      decrement -= 1
+      num_rounds = rounds[-2 + decrement].text.replace('R', '')
   
   bye_rounds = []
   round_counter = 1
   for round in rounds[1:-1]:
-    current_round = int(round.text.replace('R', ''))
+    # print(round.text)
+    try:
+      current_round = int(round.text.replace('R', ''))
+    except ValueError:
+      if round.text == 'QF' or round.text == 'SF' or round.text == 'EF' or round.text == 'PF' or round.text == 'GF':
+        continue
+      else:
+        raise ValueError(f'Round not valid: {round.text}')
     if current_round == round_counter:
       round_counter += 1
     else:
@@ -41,7 +56,7 @@ def season_data(tables):
       round_counter += 2
 
   rounds_list = []
-  for i in range(1, int(num_rounds) +1 ):
+  for i in range(1, int(num_rounds) + 1 ):
     if i in bye_rounds:
       rounds_list.append('BYE')
     else:
@@ -148,7 +163,7 @@ def get_player_data(tables, bye_rounds, year, num_rounds, final_data):
       temp_player_data.clear()
   
   final_data[year]["number_rounds"] = num_rounds
-  pprint(final_data)   
+  # pprint(final_data)   
 
   return final_data
 
@@ -172,15 +187,28 @@ def format_data(unformatted_data):
       round_id = f'{year}_{round_id_incrementor}'
       for table_key in unformatted_data[year]:
         match_element.append(round_id)
-        for data in unformatted_data[year]:
-          print(unformatted_data[year])
-          match_element.append(unformatted_data[year][data][player][round_id_incrementor])
+        for table_key in unformatted_data[year]:
+          if table_key == 'number_rounds':
+            continue
+          
+          # print(data)
+          # print(unformatted_data[year][data])
+          try:
+            match_element.append(unformatted_data[year][table_key][player][round_id_incrementor-1]) 
+          except KeyError as e:
+            match_element.append(None)
+            print(f'{year}: {table_key}')
+            
+          # -1 as the round_id_incrementor starts at 1 to match the rounds but the list starts at 0
         
+        # print(match_element)
         formatted_player_data.append(match_element)
         match_element.clear()
       round_id_incrementor += 1
-      print(formatted_player_data)
-      exit()
+      # print(formatted_player_data)
+      # exit()
+    print(formatted_player_data)
+    exit()      
 
         
 
@@ -205,7 +233,7 @@ unformatted_data = {
 years = ['2024', '2023', '2022', '2021', '2020']
 
 
-team = 'adelaide'
+team = 'westcoast'
 
 for year in years:
   soup = bs.BeautifulSoup(get_html(f'https://afltables.com/afl/stats/teams/{team}/{year}_gbg.html'), 'html.parser')
@@ -219,6 +247,7 @@ for year in years:
 
 with open('generated/unformatted_data.json', 'w') as f:
   json.dump(unformatted_data, f, indent=2)
+
 format_data(unformatted_data)
 
 '''
