@@ -181,7 +181,7 @@ def format_data(unformatted_data):
 
     name_element = []
     name_element.append(player)
-    for i in range(23):
+    for i in range(22):
       name_element.append(None)
     
     player_element.append(name_element)
@@ -205,13 +205,14 @@ def format_data(unformatted_data):
             match_element.append(None)
 
         player_element.append(match_element)
-        print(player_element)
         round_counter += 1
         
     data.append(player_element)
-    with open('generated/formatted_data.txt', 'w') as f:
-      f.write(str(data))
-    exit()
+  
+  with open('generated/formatted_data.txt', 'w') as f:
+    f.write(str(data))
+
+
     
       
 
@@ -241,17 +242,27 @@ unformatted_data = {
 years = ['2024', '2023', '2022', '2021', '2020']
 
 
-team = 'westcoast'
+teams = ['adelaide', 'brisbanel', 'carlton', 'collingwood', 'essendon','fremantle', 'geelong', 
+          'goldcoast', 'gws', 'hawthorn', 'melbourne', 'kangaroos', 'padelaide', 'richmond', 
+          'stkilda', 'swans', 'westcoast', 'bullldogs']    
+         #bullldogs with 3 ls is not a typo by me. The person who made afltables.com made a typo in the url
 
-for year in years:
-  soup = bs.BeautifulSoup(get_html(f'https://afltables.com/afl/stats/teams/{team}/{year}_gbg.html'), 'html.parser')
+for team in teams:
+  print(team)
+  for year in years:
+    print(year)
+    soup = bs.BeautifulSoup(get_html(f'https://afltables.com/afl/stats/teams/{team}/{year}_gbg.html'), 'html.parser')
 
-  tables = soup.find("div", {"class": "simpleTabs"})
+    if not soup:
+      print('could not get html')
+      exit()
 
-  rounds, bye_rounds, num_rounds = season_data(tables)
+    tables = soup.find("div", {"class": "simpleTabs"})
 
-  unformatted_data = get_player_data(tables, bye_rounds, year, num_rounds, unformatted_data)
-  # pprint(unformatted_data)
+    rounds, bye_rounds, num_rounds = season_data(tables)
+
+    unformatted_data = get_player_data(tables, bye_rounds, year, num_rounds, unformatted_data)
+    # pprint(unformatted_data)
 
 with open('generated/unformatted_data.json', 'w') as f:
   json.dump(unformatted_data, f, indent=2)
