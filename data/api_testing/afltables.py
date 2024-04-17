@@ -209,8 +209,8 @@ def format_data(unformatted_data):
         
     data.append(player_element)
   
-  with open('generated/formatted_data.txt', 'w') as f:
-    f.write(str(data))
+  with open('generated/formatted_data.json', 'w') as f:
+    json.dump({"a": data}, f, indent=2)
 
 
     
@@ -250,7 +250,7 @@ teams = ['adelaide', 'brisbanel', 'carlton', 'collingwood', 'essendon','fremantl
 for team in teams:
   print(team)
   for year in years:
-    print(year)
+    # print(year)
     soup = bs.BeautifulSoup(get_html(f'https://afltables.com/afl/stats/teams/{team}/{year}_gbg.html'), 'html.parser')
 
     if not soup:
