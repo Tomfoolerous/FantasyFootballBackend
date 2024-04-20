@@ -10,5 +10,5 @@ clean:
 	rm -rf generated
 	python3 data/api_testing/afltables.py
 
-run_cached: generate
+run_cached:
 	python3 data/get_cached_data.py
